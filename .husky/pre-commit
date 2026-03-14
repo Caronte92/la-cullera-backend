@@ -1,0 +1,12 @@
+#!/bin/sh
+# Pre-commit hook: verify formatting and run tests
+set -e
+
+# Restore and run dotnet-format in verify mode
+dotnet tool restore
+dotnet format --verify-no-changes
+
+# Run tests (optional: skip slow tests)
+dotnet test --no-build
+
+exit 0

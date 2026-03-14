@@ -1,0 +1,152 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+_ReSharper*/
+*.dotCover
+
+# Visual Studio cache
+.vs/*
+
+# Build outputs
+**/bin/
+**/obj/
+
+# Publish outputs
+**/publish/
+
+# Rider
+/.idea/
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+
+# NuGet
+**/packages/
+*.nupkg
+.nuget/
+
+# EF migrations local metadata
+**/Migrations/**/EfMigrationsHistory*
+
+# Backup files
+*~
+*.bak
+*.tmp
+
+# Dotnet tools
+/.dotnet/tools
+
+# Coverage
+coverage*
+.coverage
+.nyc_output
+
+# Test results
+TestResults/
+
+# Docker
+**/docker-compose.override.yml
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.suo
+*.sln.docstates
+*.sln.iml
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+*.user
+*.userosscache
+*.sln.user
+
+# User-specific files
+.DS_Store
+[Tt]humbs.db
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Entity Framework
+*.db
+*.sqlite
+*.sqlite3
+Migrations/*/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Application logs
+logs/
+*.log
+*.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Node (if using frontend)
+node_modules/
+dist/
+build/
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# BDD Specflow
+bin/
+obj/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Local user-specific settings
+launchSettings.json

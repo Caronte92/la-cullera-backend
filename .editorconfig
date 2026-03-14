@@ -1,0 +1,33 @@
+root = true
+
+[*.{cs,csproj}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+# Use implicit type for local variables when obvious
+csharp_style_var_elsewhere = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+
+# Namespace and file organization
+dotnet_sort_system_directives_first = true
+
+# StyleCop rules - disable verbose/conflicting rules
+dotnet_diagnostic.SA1117.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1206.severity = none
+dotnet_diagnostic.SA1300.severity = warning
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1649.severity = none
+
+# IDE diagnostics
+dotnet_diagnostic.IDE0055.severity = suggestion
+
+# File headers disabled
+file_header_template =

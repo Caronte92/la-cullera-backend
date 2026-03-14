@@ -1,0 +1,13 @@
+<Project>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.*" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.*" PrivateAssets="All" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.*" PrivateAssets="All" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Treat analyzer warnings as build warnings by default; adjust as needed -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
