@@ -60,16 +60,13 @@ public class AuthControllerTests
   [Fact]
   public async Task Register_ShouldReturnCreated_WhenDataIsValid()
   {
-    var dto = new CreateUserDto("newuser", "new@example.com", "Password123!", "New", "User");
+    var dto = new CreateUserDto("newuser", "new@example.com", "Password123!");
     var user = new User
     {
       Id = Guid.NewGuid(),
       Username = "newuser",
       Email = "new@example.com",
       PasswordHash = "hash",
-      FirstName = "New",
-      LastName = "User",
-      IsActive = true,
     };
     this.userServiceMock
         .Setup(s => s.RegisterAsync(dto, default))
@@ -84,7 +81,7 @@ public class AuthControllerTests
   [Fact]
   public async Task Register_ShouldReturnConflict_WhenUserAlreadyExists()
   {
-    var dto = new CreateUserDto("existing", "existing@example.com", "Password123!", "Existing", "User");
+    var dto = new CreateUserDto("existing", "existing@example.com", "Password123!");
     this.userServiceMock
         .Setup(s => s.RegisterAsync(dto, default))
         .ThrowsAsync(new InvalidOperationException("Username or email already exists"));

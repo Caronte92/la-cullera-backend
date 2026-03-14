@@ -20,8 +20,6 @@ public class UserService : IUserService
   private readonly IUserRepository userRepository;
   private readonly IPasswordHasher passwordHasher;
   private readonly ITokenService tokenService;
-  private readonly int maxLoginAttempts;
-  private readonly int lockoutDurationMinutes;
   private readonly int refreshTokenExpirationDays;
 
   public UserService(
@@ -35,8 +33,6 @@ public class UserService : IUserService
     this.tokenService = tokenService;
 
     // Load configuration with defaults
-    this.maxLoginAttempts = int.TryParse(configuration["Security:MaxLoginAttempts"], out var maxAttempts) ? maxAttempts : 5;
-    this.lockoutDurationMinutes = int.TryParse(configuration["Security:LockoutDurationMinutes"], out var lockoutMin) ? lockoutMin : 15;
     this.refreshTokenExpirationDays = int.TryParse(configuration["Security:RefreshTokenExpirationDays"], out var refreshDays) ? refreshDays : 7;
   }
 
@@ -55,30 +51,16 @@ public class UserService : IUserService
       return null;
     }
 
-    if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
-    {
-      Log.Warning("Login attempt for locked account: {UserId}", user.Id);
-      return null;
-    }
-
     if (!this.passwordHasher.VerifyPassword(user.PasswordHash, request.password))
     {
-      await this.HandleFailedLoginAttemptAsync(user, cancellationToken);
       Log.Warning("Failed login attempt for user: {UserId}", user.Id);
       return null;
-    }
-
-    if (user.AccessFailedCount > 0)
-    {
-      user.AccessFailedCount = 0;
-      user.LockoutEnd = null;
-      await this.userRepository.SaveChangesAsync(cancellationToken);
     }
 
     var accessToken = this.tokenService.CreateToken(
         user.Id.ToString(),
         user.Username,
-        new[] { user.IsActive ? "User" : "InactiveUser" });
+        new[] { "User" });
 
     var refreshToken = this.GenerateRefreshToken(request.ipAddress);
     refreshToken.UserId = user.Id;
@@ -123,7 +105,7 @@ public class UserService : IUserService
     var newAccessToken = this.tokenService.CreateToken(
         user.Id.ToString(),
         user.Username,
-        new[] { user.IsActive ? "User" : "InactiveUser" });
+        new[] { "User" });
 
     var newRefreshToken = this.GenerateRefreshToken(request.ipAddress);
 
@@ -197,9 +179,6 @@ public class UserService : IUserService
       Username = dto.username,
       Email = dto.email,
       PasswordHash = this.passwordHasher.HashPassword(dto.password),
-      FirstName = dto.firstName,
-      LastName = dto.lastName,
-      IsActive = true,
       RoleId = AppDbContext.UserRoleId,
     };
 
@@ -209,41 +188,6 @@ public class UserService : IUserService
     Log.Information("New user registered: {UserId}", user.Id);
 
     return user;
-  }
-
-  /// <inheritdoc/>
-  public async Task<bool> UnlockAccountAsync(
-      Guid userId,
-      CancellationToken cancellationToken = default)
-  {
-    var user = await this.userRepository.GetByIdAsync(userId, cancellationToken);
-
-    if (user == null)
-    {
-      return false;
-    }
-
-    user.AccessFailedCount = 0;
-    user.LockoutEnd = null;
-
-    await this.userRepository.SaveChangesAsync(cancellationToken);
-
-    Log.Information("Account unlocked: {UserId}", user.Id);
-
-    return true;
-  }
-
-  private async Task HandleFailedLoginAttemptAsync(User user, CancellationToken cancellationToken)
-  {
-    user.AccessFailedCount++;
-
-    if (user.AccessFailedCount >= this.maxLoginAttempts)
-    {
-      user.LockoutEnd = DateTime.UtcNow.AddMinutes(this.lockoutDurationMinutes);
-      Log.Warning("Account locked due to too many failed attempts: {UserId}", user.Id);
-    }
-
-    await this.userRepository.SaveChangesAsync(cancellationToken);
   }
 
   private RefreshToken GenerateRefreshToken(string? ipAddress)

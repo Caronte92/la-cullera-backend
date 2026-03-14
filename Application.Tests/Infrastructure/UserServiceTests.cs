@@ -30,8 +30,6 @@ public class UserServiceTests
     this.configuration = new ConfigurationBuilder()
         .AddInMemoryCollection(new Dictionary<string, string?>
         {
-          { "Security:MaxLoginAttempts", "5" },
-          { "Security:LockoutDurationMinutes", "15" },
           { "Security:RefreshTokenExpirationDays", "7" },
         })
         .Build();
@@ -57,21 +55,6 @@ public class UserServiceTests
   }
 
   [Fact]
-  public async Task AuthenticateAsync_ShouldReturnNull_WhenAccountIsLocked()
-  {
-    var user = CreateUser();
-    user.LockoutEnd = DateTime.UtcNow.AddMinutes(10);
-    this.userRepositoryMock
-        .Setup(r => r.GetWithRefreshTokensAsync("testuser", default))
-        .ReturnsAsync(user);
-
-    var request = new AuthenticationRequest("testuser", "password");
-    var result = await this.sut.AuthenticateAsync(request);
-
-    result.Should().BeNull();
-  }
-
-  [Fact]
   public async Task AuthenticateAsync_ShouldReturnNull_WhenPasswordIsInvalid()
   {
     var user = CreateUser();
@@ -86,27 +69,6 @@ public class UserServiceTests
     var result = await this.sut.AuthenticateAsync(request);
 
     result.Should().BeNull();
-    this.userRepositoryMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
-  }
-
-  [Fact]
-  public async Task AuthenticateAsync_ShouldLockAccount_AfterMaxFailedAttempts()
-  {
-    var user = CreateUser();
-    user.AccessFailedCount = 4;
-    this.userRepositoryMock
-        .Setup(r => r.GetWithRefreshTokensAsync("testuser", default))
-        .ReturnsAsync(user);
-    this.passwordHasherMock
-        .Setup(p => p.VerifyPassword(user.PasswordHash, "wrongpass"))
-        .Returns(false);
-
-    var request = new AuthenticationRequest("testuser", "wrongpass");
-    await this.sut.AuthenticateAsync(request);
-
-    user.AccessFailedCount.Should().Be(5);
-    user.LockoutEnd.Should().NotBeNull();
-    user.LockoutEnd!.Value.Should().BeCloseTo(DateTime.UtcNow.AddMinutes(15), TimeSpan.FromSeconds(5));
   }
 
   [Fact]
@@ -134,31 +96,9 @@ public class UserServiceTests
   }
 
   [Fact]
-  public async Task AuthenticateAsync_ShouldResetFailedAttempts_OnSuccessfulLogin()
-  {
-    var user = CreateUser();
-    user.AccessFailedCount = 3;
-    this.userRepositoryMock
-        .Setup(r => r.GetWithRefreshTokensAsync("testuser", default))
-        .ReturnsAsync(user);
-    this.passwordHasherMock
-        .Setup(p => p.VerifyPassword(user.PasswordHash, "Password123!"))
-        .Returns(true);
-    this.tokenServiceMock
-        .Setup(t => t.CreateToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()))
-        .Returns("access-token");
-
-    var request = new AuthenticationRequest("testuser", "Password123!");
-    await this.sut.AuthenticateAsync(request);
-
-    user.AccessFailedCount.Should().Be(0);
-    user.LockoutEnd.Should().BeNull();
-  }
-
-  [Fact]
   public async Task RegisterAsync_ShouldCreateUser_WhenDataIsValid()
   {
-    var dto = new CreateUserDto("newuser", "new@example.com", "Password123!", "New", "User");
+    var dto = new CreateUserDto("newuser", "new@example.com", "Password123!");
     this.userRepositoryMock
         .Setup(r => r.ExistsByUsernameOrEmailAsync("newuser", "new@example.com", default))
         .ReturnsAsync(false);
@@ -179,7 +119,7 @@ public class UserServiceTests
   [Fact]
   public async Task RegisterAsync_ShouldThrow_WhenUserAlreadyExists()
   {
-    var dto = new CreateUserDto("existing", "existing@example.com", "Password123!", "Existing", "User");
+    var dto = new CreateUserDto("existing", "existing@example.com", "Password123!");
     this.userRepositoryMock
         .Setup(r => r.ExistsByUsernameOrEmailAsync("existing", "existing@example.com", default))
         .ReturnsAsync(true);
@@ -287,37 +227,6 @@ public class UserServiceTests
     this.userRepositoryMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
-  [Fact]
-  public async Task UnlockAccountAsync_ShouldReturnFalse_WhenUserNotFound()
-  {
-    var userId = Guid.NewGuid();
-    this.userRepositoryMock
-        .Setup(r => r.GetByIdAsync(userId, default))
-        .ReturnsAsync((User?)null);
-
-    var result = await this.sut.UnlockAccountAsync(userId);
-
-    result.Should().BeFalse();
-  }
-
-  [Fact]
-  public async Task UnlockAccountAsync_ShouldResetLockout()
-  {
-    var user = CreateUser();
-    user.AccessFailedCount = 5;
-    user.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
-    this.userRepositoryMock
-        .Setup(r => r.GetByIdAsync(user.Id, default))
-        .ReturnsAsync(user);
-
-    var result = await this.sut.UnlockAccountAsync(user.Id);
-
-    result.Should().BeTrue();
-    user.AccessFailedCount.Should().Be(0);
-    user.LockoutEnd.Should().BeNull();
-    this.userRepositoryMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
-  }
-
   private static User CreateUser()
   {
     return new User
@@ -326,9 +235,6 @@ public class UserServiceTests
       Username = "testuser",
       Email = "test@example.com",
       PasswordHash = "hashed-password",
-      FirstName = "Test",
-      LastName = "User",
-      IsActive = true,
     };
   }
 }

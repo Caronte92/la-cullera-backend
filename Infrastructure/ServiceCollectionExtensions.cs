@@ -35,6 +35,15 @@ public static class ServiceCollectionExtensions
     // User repository
     services.AddScoped<Application.Interfaces.IUserRepository, Infrastructure.Repositories.UserRepository>();
 
+    // Recipe repository
+    services.AddScoped<Application.Interfaces.IRecipeRepository, Infrastructure.Repositories.RecipeRepository>();
+
+    // Tag repository
+    services.AddScoped<Application.Interfaces.ITagRepository, Infrastructure.Repositories.TagRepository>();
+
+    // Unit repository
+    services.AddScoped<Application.Interfaces.IUnitRepository, Infrastructure.Repositories.UnitRepository>();
+
     // Token service for JWT creation
     services.AddScoped<Application.Interfaces.ITokenService, Infrastructure.Services.TokenService>();
 

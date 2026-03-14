@@ -34,9 +34,6 @@ public class RepositoryTests
       Username = "testuser",
       Email = "test@example.com",
       PasswordHash = "hash",
-      FirstName = "Test",
-      LastName = "User",
-      IsActive = true,
     };
 
     // Act
@@ -62,9 +59,6 @@ public class RepositoryTests
       Username = $"user{i}",
       Email = $"user{i}@example.com",
       PasswordHash = "hash",
-      FirstName = "Test",
-      LastName = "User",
-      IsActive = true,
     }).ToList();
 
     await context.Users.AddRangeAsync(users);
@@ -112,9 +106,6 @@ public class RepositoryTests
       Username = "todelete",
       Email = "delete@example.com",
       PasswordHash = "hash",
-      FirstName = "Test",
-      LastName = "User",
-      IsActive = true,
     };
 
     await context.Users.AddAsync(user);

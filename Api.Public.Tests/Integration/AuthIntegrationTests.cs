@@ -30,9 +30,7 @@ public class AuthIntegrationTests : IClassFixture<CustomWebApplicationFactory<Pr
     var registerDto = new CreateUserDto(
         $"integration_reg_{uniqueId}",
         $"integration_reg_{uniqueId}@test.com",
-        "Password123!",
-        "Integration",
-        "Test");
+        "Password123!");
 
     // Act
     var response = await client.PostAsJsonAsync("/auth/register", registerDto);
@@ -54,9 +52,7 @@ public class AuthIntegrationTests : IClassFixture<CustomWebApplicationFactory<Pr
     var registerDto = new CreateUserDto(
         $"loginuser_{uniqueId}",
         $"login_{uniqueId}@test.com",
-        "Password123!",
-        "Login",
-        "User");
+        "Password123!");
     var registerResponse = await client.PostAsJsonAsync("/auth/register", registerDto);
     registerResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 

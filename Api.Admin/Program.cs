@@ -119,17 +119,4 @@ var adminGroup = app.MapGroup("/admin").RequireAuthorization("AdminOnly").WithOp
 adminGroup.MapGet("/", () => Results.Ok(new { secret = "only for admins" }))
     .WithName("AdminOnly");
 
-adminGroup.MapPost("/users/{id}/unlock", async (Guid id, Application.Interfaces.IUserService userService) =>
-{
-  var result = await userService.UnlockAccountAsync(id);
-
-  if (!result)
-  {
-    return Results.NotFound(new { message = "User not found" });
-  }
-
-  return Results.Ok(new { message = "Account unlocked" });
-})
-.WithName("UnlockUserAccount");
-
 app.Run();

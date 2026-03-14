@@ -121,14 +121,6 @@ public class AppDbContext : DbContext
             .HasMaxLength(255)
             .IsRequired();
 
-        userBuilder.Property(u => u.FirstName)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        userBuilder.Property(u => u.LastName)
-            .HasMaxLength(100)
-            .IsRequired();
-
         userBuilder.Property(u => u.CreatedBy)
             .HasMaxLength(255);
 

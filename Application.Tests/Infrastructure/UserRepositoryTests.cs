@@ -32,9 +32,6 @@ public class UserRepositoryTests
       Username = "testuser",
       Email = "test@example.com",
       PasswordHash = "hash",
-      FirstName = "Test",
-      LastName = "User",
-      IsActive = true,
     };
 
     await repository.AddAsync(user);
@@ -55,9 +52,6 @@ public class UserRepositoryTests
       Username = "findme",
       Email = "find@example.com",
       PasswordHash = "hash",
-      FirstName = "Find",
-      LastName = "Me",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -78,9 +72,6 @@ public class UserRepositoryTests
       Username = "emailuser",
       Email = "email@example.com",
       PasswordHash = "hash",
-      FirstName = "Email",
-      LastName = "User",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -101,9 +92,6 @@ public class UserRepositoryTests
       Username = "deleted",
       Email = "deleted@example.com",
       PasswordHash = "hash",
-      FirstName = "Deleted",
-      LastName = "User",
-      IsActive = true,
       IsDeleted = true,
     };
     context.Users.Add(user);
@@ -124,9 +112,6 @@ public class UserRepositoryTests
       Username = "tokenuser",
       Email = "token@example.com",
       PasswordHash = "hash",
-      FirstName = "Token",
-      LastName = "User",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -157,9 +142,6 @@ public class UserRepositoryTests
       Username = "refreshuser",
       Email = "refresh@example.com",
       PasswordHash = "hash",
-      FirstName = "Refresh",
-      LastName = "User",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -200,9 +182,6 @@ public class UserRepositoryTests
       Username = "existing",
       Email = "existing@example.com",
       PasswordHash = "hash",
-      FirstName = "Existing",
-      LastName = "User",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -233,9 +212,6 @@ public class UserRepositoryTests
       Username = "byid",
       Email = "byid@example.com",
       PasswordHash = "hash",
-      FirstName = "ById",
-      LastName = "User",
-      IsActive = true,
     };
     context.Users.Add(user);
     await context.SaveChangesAsync();
@@ -256,9 +232,6 @@ public class UserRepositoryTests
       Username = "softdeleted",
       Email = "softdeleted@example.com",
       PasswordHash = "hash",
-      FirstName = "Soft",
-      LastName = "Deleted",
-      IsActive = true,
       IsDeleted = true,
     };
     context.Users.Add(user);
