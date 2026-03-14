@@ -19,8 +19,12 @@ public static class ServiceCollectionExtensions
       this IServiceCollection services,
       IConfiguration configuration)
   {
-    var connectionString = configuration.GetConnectionString("Default")
-        ?? throw new InvalidOperationException("Connection string 'Default' not found.");
+    var dbHost = configuration["Database:Host"] ?? "localhost";
+    var dbPort = configuration["Database:Port"] ?? "5432";
+    var dbName = configuration["Database:Name"] ?? throw new InvalidOperationException("Database:Name not configured.");
+    var dbUser = configuration["Database:Username"] ?? throw new InvalidOperationException("Database:Username not configured.");
+    var dbPassword = configuration["Database:Password"] ?? throw new InvalidOperationException("Database:Password not configured.");
+    var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
     services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(connectionString));
