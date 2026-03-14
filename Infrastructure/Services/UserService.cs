@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using Application.DTOs;
 using Application.Interfaces;
 using Domain.Entities;
+using Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -199,6 +200,7 @@ public class UserService : IUserService
       FirstName = dto.firstName,
       LastName = dto.lastName,
       IsActive = true,
+      RoleId = AppDbContext.UserRoleId,
     };
 
     await this.userRepository.AddAsync(user, cancellationToken);

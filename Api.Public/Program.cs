@@ -122,6 +122,11 @@ if (app.Environment.IsDevelopment())
 {
   app.MapOpenApi();
   app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Api.Public v1"));
+
+  // Auto-create/update DB schema in development (no migrations needed)
+  using var scope = app.Services.CreateScope();
+  var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
+  db.Database.EnsureCreated();
 }
 
 app.UseHttpsRedirection();

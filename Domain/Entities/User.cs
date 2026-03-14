@@ -26,6 +26,8 @@ public class User : BaseEntity
   /// </summary>
   public required string PasswordHash { get; set; }
 
+  public Guid RoleId { get; set; }
+
   /// <summary>
   /// Gets or sets the first name.
   /// </summary>
@@ -55,6 +57,10 @@ public class User : BaseEntity
   /// Gets or sets the refresh tokens for this user.
   /// </summary>
   public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+  public Role Role { get; set; } = null!;
+
+  public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
 
   /// <summary>
   /// Gets the full name of the user.
