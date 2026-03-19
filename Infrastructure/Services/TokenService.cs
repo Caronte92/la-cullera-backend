@@ -22,7 +22,8 @@ public class TokenService : ITokenService
 
   public string CreateToken(string userId, string username, IEnumerable<string>? roles = null)
   {
-    var secret = this.configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET") ?? "replace-with-a-secure-secret";
+    var secret = this.configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+        ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
     var expiryMinutesString = this.configuration["JWT_EXPIRY_MINUTES"] ?? Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "60";
     var expiryMinutes = int.TryParse(expiryMinutesString, out var m) ? m : 60;
 
@@ -45,6 +46,8 @@ public class TokenService : ITokenService
     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
     var token = new JwtSecurityToken(
+        issuer: "la-cullera-api",
+        audience: "la-cullera-client",
         claims: claims,
         expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
         signingCredentials: creds);

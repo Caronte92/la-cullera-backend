@@ -50,7 +50,19 @@ public class UserRepository : IUserRepository
   public async Task<bool> ExistsByUsernameOrEmailAsync(string username, string email, CancellationToken cancellationToken = default)
   {
     return await this.context.Users
-        .AnyAsync(u => u.Username == username || u.Email == email, cancellationToken);
+        .AnyAsync(u => (u.Username == username || u.Email == email) && !u.IsDeleted, cancellationToken);
+  }
+
+  public async Task<bool> ExistsByUsernameAsync(string username, CancellationToken cancellationToken = default)
+  {
+    return await this.context.Users
+        .AnyAsync(u => u.Username == username && !u.IsDeleted, cancellationToken);
+  }
+
+  public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+  {
+    return await this.context.Users
+        .AnyAsync(u => u.Email == email && !u.IsDeleted, cancellationToken);
   }
 
   public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -67,6 +79,27 @@ public class UserRepository : IUserRepository
   public async Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
   {
     await this.context.Set<RefreshToken>().AddAsync(refreshToken, cancellationToken);
+  }
+
+  public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
+  {
+    user.UpdatedAt = DateTime.UtcNow;
+    this.context.Users.Update(user);
+    return Task.CompletedTask;
+  }
+
+  public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+  {
+    user.IsDeleted = true;
+    user.DeletedAt = DateTime.UtcNow;
+    this.context.Users.Update(user);
+    return Task.CompletedTask;
+  }
+
+  public async Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId, CancellationToken cancellationToken = default)
+  {
+    return await this.context.Users
+        .AnyAsync(u => u.Email == email && u.Id != excludeUserId && !u.IsDeleted, cancellationToken);
   }
 
   public async Task SaveChangesAsync(CancellationToken cancellationToken = default)

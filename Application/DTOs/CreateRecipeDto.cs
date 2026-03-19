@@ -13,4 +13,4 @@ public record CreateRecipeDto(
     string difficulty,
     IEnumerable<CreateIngredientDto> ingredients,
     IEnumerable<CreateStepDto> steps,
-    IEnumerable<Guid> tagIds);
+    IEnumerable<string> tags);

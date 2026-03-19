@@ -14,6 +14,7 @@ namespace Api.Public.Controllers;
 
 [ApiController]
 [Route("tags")]
+[Authorize]
 public partial class TagsController : ControllerBase
 {
   private readonly ITagRepository tagRepository;
@@ -55,7 +56,6 @@ public partial class TagsController : ControllerBase
     return this.Ok(tags);
   }
 
-  [Authorize]
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] CreateTagDto dto)
   {
@@ -76,7 +76,6 @@ public partial class TagsController : ControllerBase
     return this.Created($"/tags/{tag.Slug}", new { tag.Id, tag.Name, tag.Slug });
   }
 
-  [Authorize]
   [HttpPut("{id:guid}")]
   public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTagDto dto)
   {
@@ -101,7 +100,6 @@ public partial class TagsController : ControllerBase
     return this.Ok(new { tag.Id, tag.Name, tag.Slug });
   }
 
-  [Authorize]
   [HttpDelete("{id:guid}")]
   public async Task<IActionResult> Delete(Guid id)
   {

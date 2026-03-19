@@ -54,4 +54,11 @@ public interface IUserService
         CreateUserDto dto,
         CancellationToken cancellationToken = default);
 
+    Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+
+    Task<bool> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteAccountAsync(Guid userId, string password, CancellationToken cancellationToken = default);
 }

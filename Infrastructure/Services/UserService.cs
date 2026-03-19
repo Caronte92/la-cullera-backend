@@ -90,7 +90,7 @@ public class UserService : IUserService
 
     if (user == null)
     {
-      Log.Warning("Refresh token not found: {Token}", request.refreshToken);
+      Log.Warning("Refresh token not found for refresh attempt");
       return null;
     }
 
@@ -98,7 +98,7 @@ public class UserService : IUserService
 
     if (!refreshToken.IsActive)
     {
-      Log.Warning("Inactive refresh token used: {Token}", request.refreshToken);
+      Log.Warning("Inactive refresh token used for user {UserId}", user.Id);
       return null;
     }
 
@@ -167,11 +167,14 @@ public class UserService : IUserService
   {
     ArgumentNullException.ThrowIfNull(dto);
 
-    var exists = await this.userRepository.ExistsByUsernameOrEmailAsync(dto.username, dto.email, cancellationToken);
-
-    if (exists)
+    if (await this.userRepository.ExistsByUsernameAsync(dto.username, cancellationToken))
     {
-      throw new InvalidOperationException("Username or email already exists");
+      throw new InvalidOperationException("Username already exists");
+    }
+
+    if (await this.userRepository.ExistsByEmailAsync(dto.email, cancellationToken))
+    {
+      throw new InvalidOperationException("Email already registered");
     }
 
     var user = new User
@@ -188,6 +191,77 @@ public class UserService : IUserService
     Log.Information("New user registered: {UserId}", user.Id);
 
     return user;
+  }
+
+  /// <inheritdoc/>
+  public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  {
+    return await this.userRepository.GetByIdAsync(userId, cancellationToken);
+  }
+
+  /// <inheritdoc/>
+  public async Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+  {
+    var user = await this.userRepository.GetByIdAsync(userId, cancellationToken);
+    if (user == null)
+    {
+      return false;
+    }
+
+    if (!this.passwordHasher.VerifyPassword(user.PasswordHash, currentPassword))
+    {
+      return false;
+    }
+
+    user.PasswordHash = this.passwordHasher.HashPassword(newPassword);
+    await this.userRepository.UpdateAsync(user, cancellationToken);
+    await this.userRepository.SaveChangesAsync(cancellationToken);
+
+    Log.Information("User {UserId} changed password", userId);
+    return true;
+  }
+
+  /// <inheritdoc/>
+  public async Task<bool> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default)
+  {
+    var user = await this.userRepository.GetByIdAsync(userId, cancellationToken);
+    if (user == null)
+    {
+      return false;
+    }
+
+    if (await this.userRepository.ExistsByEmailAsync(newEmail, userId, cancellationToken))
+    {
+      throw new InvalidOperationException("Email already in use");
+    }
+
+    user.Email = newEmail;
+    await this.userRepository.UpdateAsync(user, cancellationToken);
+    await this.userRepository.SaveChangesAsync(cancellationToken);
+
+    Log.Information("User {UserId} changed email", userId);
+    return true;
+  }
+
+  /// <inheritdoc/>
+  public async Task<bool> DeleteAccountAsync(Guid userId, string password, CancellationToken cancellationToken = default)
+  {
+    var user = await this.userRepository.GetByIdAsync(userId, cancellationToken);
+    if (user == null)
+    {
+      return false;
+    }
+
+    if (!this.passwordHasher.VerifyPassword(user.PasswordHash, password))
+    {
+      return false;
+    }
+
+    await this.userRepository.DeleteAsync(user, cancellationToken);
+    await this.userRepository.SaveChangesAsync(cancellationToken);
+
+    Log.Information("User {UserId} deleted account", userId);
+    return true;
   }
 
   private RefreshToken GenerateRefreshToken(string? ipAddress)

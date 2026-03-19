@@ -8,6 +8,8 @@ public interface ITagRepository
 
   Task<Tag?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
 
+  Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+
   Task<IEnumerable<Tag>> GetAllAsync(CancellationToken cancellationToken = default);
 
   Task<IEnumerable<Tag>> SearchByNameAsync(string name, CancellationToken cancellationToken = default);

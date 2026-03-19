@@ -2,9 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using Application.DTOs;
 using Application.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +10,7 @@ namespace Api.Public.Controllers;
 
 [ApiController]
 [Route("units")]
+[Authorize]
 public class UnitsController : ControllerBase
 {
   private readonly IUnitRepository unitRepository;
@@ -61,72 +60,5 @@ public class UnitsController : ControllerBase
     }
 
     return this.Ok(new { fromUnitId, toUnitId, factor });
-  }
-
-  [Authorize]
-  [HttpPost]
-  public async Task<IActionResult> Create([FromBody] CreateUnitDto dto)
-  {
-    if (await this.unitRepository.ExistsByNameAsync(dto.name))
-    {
-      return this.Conflict(new { message = "A unit with this name already exists" });
-    }
-
-    var unit = new Unit
-    {
-      Name = dto.name,
-      Abbreviation = dto.abbreviation,
-      Type = dto.type,
-      ToBaseFactor = dto.toBaseFactor,
-    };
-
-    await this.unitRepository.AddAsync(unit);
-    await this.unitRepository.SaveChangesAsync();
-
-    return this.Created($"/units/{unit.Id}", new { unit.Id, unit.Name, unit.Abbreviation });
-  }
-
-  [Authorize]
-  [HttpPut("{id:guid}")]
-  public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUnitDto dto)
-  {
-    var unit = await this.unitRepository.GetByIdAsync(id);
-
-    if (unit == null)
-    {
-      return this.NotFound(new { message = "Unit not found" });
-    }
-
-    if (unit.Name != dto.name && await this.unitRepository.ExistsByNameAsync(dto.name))
-    {
-      return this.Conflict(new { message = "A unit with this name already exists" });
-    }
-
-    unit.Name = dto.name;
-    unit.Abbreviation = dto.abbreviation;
-    unit.Type = dto.type;
-    unit.ToBaseFactor = dto.toBaseFactor;
-
-    await this.unitRepository.UpdateAsync(unit);
-    await this.unitRepository.SaveChangesAsync();
-
-    return this.Ok(new { unit.Id, unit.Name, unit.Abbreviation });
-  }
-
-  [Authorize]
-  [HttpDelete("{id:guid}")]
-  public async Task<IActionResult> Delete(Guid id)
-  {
-    var unit = await this.unitRepository.GetByIdAsync(id);
-
-    if (unit == null)
-    {
-      return this.NotFound(new { message = "Unit not found" });
-    }
-
-    await this.unitRepository.DeleteAsync(unit);
-    await this.unitRepository.SaveChangesAsync();
-
-    return this.NoContent();
   }
 }

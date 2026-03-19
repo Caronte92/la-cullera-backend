@@ -181,12 +181,14 @@ public class RecipesControllerTests
     this.SetUser(userId);
     var ingredients = new[] { new CreateIngredientDto("Arroz", 500, Guid.NewGuid(), 1) };
     var steps = new[] { new CreateStepDto(1, "Sofreír") };
-    var tagId = Guid.NewGuid();
-    var dto = new CreateRecipeDto("Paella", null, null, 4, 30, "medium", ingredients, steps, new[] { tagId });
+    var dto = new CreateRecipeDto("Paella", null, null, 4, 30, "medium", ingredients, steps, new[] { "Vegetarian" });
 
     this.recipeRepoMock
         .Setup(r => r.ExistsBySlugAsync("paella", default))
         .ReturnsAsync(false);
+    this.tagRepoMock
+        .Setup(r => r.GetByNameAsync("Vegetarian", default))
+        .ReturnsAsync(new Tag { Name = "Vegetarian", Slug = "vegetarian" });
 
     var result = await this.sut.Create(dto);
 

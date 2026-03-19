@@ -15,6 +15,7 @@ namespace Api.Public.Controllers;
 
 [ApiController]
 [Route("recipes")]
+[Authorize]
 public partial class RecipesController : ControllerBase
 {
   private readonly IRecipeRepository recipeRepository;
@@ -68,7 +69,6 @@ public partial class RecipesController : ControllerBase
     return this.Ok(recipes);
   }
 
-  [Authorize]
   [HttpGet("mine")]
   public async Task<IActionResult> GetMyRecipes()
   {
@@ -82,7 +82,6 @@ public partial class RecipesController : ControllerBase
     return this.Ok(recipes);
   }
 
-  [Authorize]
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] CreateRecipeDto dto)
   {
@@ -132,9 +131,10 @@ public partial class RecipesController : ControllerBase
       });
     }
 
-    foreach (var tagId in dto.tagIds)
+    foreach (var tagName in dto.tags)
     {
-      recipe.RecipeTags.Add(new RecipeTag { TagId = tagId });
+      var tag = await this.ResolveTagAsync(tagName);
+      recipe.RecipeTags.Add(new RecipeTag { TagId = tag.Id });
     }
 
     await this.recipeRepository.AddAsync(recipe);
@@ -143,7 +143,6 @@ public partial class RecipesController : ControllerBase
     return this.Created($"/recipes/{slug}", new { recipe.Id, recipe.Slug });
   }
 
-  [Authorize]
   [HttpPut("{id:guid}")]
   public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRecipeDto dto)
   {
@@ -203,9 +202,10 @@ public partial class RecipesController : ControllerBase
     }
 
     recipe.RecipeTags.Clear();
-    foreach (var tagId in dto.tagIds)
+    foreach (var tagName in dto.tags)
     {
-      recipe.RecipeTags.Add(new RecipeTag { TagId = tagId });
+      var tag = await this.ResolveTagAsync(tagName);
+      recipe.RecipeTags.Add(new RecipeTag { TagId = tag.Id });
     }
 
     await this.recipeRepository.UpdateAsync(recipe);
@@ -214,7 +214,6 @@ public partial class RecipesController : ControllerBase
     return this.Ok(new { recipe.Id, recipe.Slug });
   }
 
-  [Authorize]
   [HttpDelete("{id:guid}")]
   public async Task<IActionResult> Delete(Guid id)
   {
@@ -240,6 +239,25 @@ public partial class RecipesController : ControllerBase
     await this.recipeRepository.SaveChangesAsync();
 
     return this.NoContent();
+  }
+
+  private async Task<Tag> ResolveTagAsync(string tagName)
+  {
+    var existing = await this.tagRepository.GetByNameAsync(tagName);
+    if (existing != null)
+    {
+      return existing;
+    }
+
+    var tag = new Tag
+    {
+      Name = tagName,
+      Slug = GenerateSlug(tagName),
+    };
+
+    await this.tagRepository.AddAsync(tag);
+    await this.tagRepository.SaveChangesAsync();
+    return tag;
   }
 
   private Guid? GetUserId()

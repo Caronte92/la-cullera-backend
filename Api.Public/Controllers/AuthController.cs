@@ -4,6 +4,7 @@
 
 using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -57,6 +58,7 @@ public class AuthController : ControllerBase
   }
 
   [HttpPost("revoke")]
+  [Authorize]
   public async Task<IActionResult> Revoke([FromBody] RevokeTokenDto request)
   {
     var ipAddress = this.HttpContext.Connection.RemoteIpAddress?.ToString();

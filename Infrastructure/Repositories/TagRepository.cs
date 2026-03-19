@@ -28,6 +28,12 @@ public class TagRepository : ITagRepository
         .FirstOrDefaultAsync(t => t.Slug == slug && !t.IsDeleted, cancellationToken);
   }
 
+  public async Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+  {
+    return await this.context.Tags
+        .FirstOrDefaultAsync(t => t.Name == name && !t.IsDeleted, cancellationToken);
+  }
+
   public async Task<IEnumerable<Tag>> GetAllAsync(CancellationToken cancellationToken = default)
   {
     return await this.context.Tags

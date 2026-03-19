@@ -33,18 +33,21 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Application.Validators.CreateUserValidator>();
 
 // Authentication - JWT Bearer
-var jwtSecret = builder.Configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET") ?? "replace-with-a-secure-secret";
+var jwtSecret = builder.Configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? throw new InvalidOperationException("JWT_SECRET is not configured. Set it in environment variables or appsettings.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-      options.RequireHttpsMetadata = false;
+      options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
       options.SaveToken = true;
       options.TokenValidationParameters = new TokenValidationParameters
       {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidIssuer = "la-cullera-api",
+        ValidateAudience = true,
+        ValidAudience = "la-cullera-client",
       };
     });
 
@@ -64,7 +67,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSwaggerGen(c =>
 {
   c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api.Public", Version = "v1" });
-  var securityScheme = new OpenApiSecurityScheme
+  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
   {
     Name = "Authorization",
     Type = SecuritySchemeType.Http,
@@ -72,12 +75,33 @@ builder.Services.AddSwaggerGen(c =>
     BearerFormat = "JWT",
     In = ParameterLocation.Header,
     Description = "JWT Authorization header using the Bearer scheme.",
-  };
-  c.AddSecurityDefinition("Bearer", securityScheme);
+  });
   c.AddSecurityRequirement(new OpenApiSecurityRequirement
+  {
     {
-        { securityScheme, Array.Empty<string>() },
-    });
+      new OpenApiSecurityScheme
+      {
+        Reference = new OpenApiReference
+        {
+          Type = ReferenceType.SecurityScheme,
+          Id = "Bearer"
+        }
+      },
+      Array.Empty<string>()
+    }
+  });
+});
+
+// CORS
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AllowFrontend", policy =>
+  {
+    policy.WithOrigins(builder.Configuration["Cors:Origin"] ?? "http://localhost:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+  });
 });
 
 // Rate Limiting
@@ -120,8 +144,8 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-  app.MapOpenApi();
-  app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Api.Public v1"));
+  app.UseSwagger();
+  app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.Public v1"));
 
   // Auto-create/update DB schema in development (no migrations needed)
   using var scope = app.Services.CreateScope();
@@ -130,6 +154,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 

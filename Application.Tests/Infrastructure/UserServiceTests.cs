@@ -117,17 +117,34 @@ public class UserServiceTests
   }
 
   [Fact]
-  public async Task RegisterAsync_ShouldThrow_WhenUserAlreadyExists()
+  public async Task RegisterAsync_ShouldThrow_WhenUsernameAlreadyExists()
   {
-    var dto = new CreateUserDto("existing", "existing@example.com", "Password123!");
+    var dto = new CreateUserDto("existing", "new@example.com", "Password123!");
     this.userRepositoryMock
-        .Setup(r => r.ExistsByUsernameOrEmailAsync("existing", "existing@example.com", default))
+        .Setup(r => r.ExistsByUsernameAsync("existing", default))
         .ReturnsAsync(true);
 
     var act = async () => await this.sut.RegisterAsync(dto);
 
     await act.Should().ThrowAsync<InvalidOperationException>()
-        .WithMessage("Username or email already exists");
+        .WithMessage("Username already exists");
+  }
+
+  [Fact]
+  public async Task RegisterAsync_ShouldThrow_WhenEmailAlreadyExists()
+  {
+    var dto = new CreateUserDto("newuser", "existing@example.com", "Password123!");
+    this.userRepositoryMock
+        .Setup(r => r.ExistsByUsernameAsync("newuser", default))
+        .ReturnsAsync(false);
+    this.userRepositoryMock
+        .Setup(r => r.ExistsByEmailAsync("existing@example.com", default))
+        .ReturnsAsync(true);
+
+    var act = async () => await this.sut.RegisterAsync(dto);
+
+    await act.Should().ThrowAsync<InvalidOperationException>()
+        .WithMessage("Email already registered");
   }
 
   [Fact]

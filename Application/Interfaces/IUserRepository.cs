@@ -19,11 +19,21 @@ public interface IUserRepository
 
   Task<bool> ExistsByUsernameOrEmailAsync(string username, string email, CancellationToken cancellationToken = default);
 
+  Task<bool> ExistsByUsernameAsync(string username, CancellationToken cancellationToken = default);
+
+  Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+
   Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
   Task AddAsync(User user, CancellationToken cancellationToken = default);
 
   Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
+
+  Task UpdateAsync(User user, CancellationToken cancellationToken = default);
+
+  Task DeleteAsync(User user, CancellationToken cancellationToken = default);
+
+  Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId, CancellationToken cancellationToken = default);
 
   Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
