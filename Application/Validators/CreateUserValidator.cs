@@ -9,24 +9,24 @@ namespace Application.Validators;
 
 public class CreateUserValidator : AbstractValidator<CreateUserDto>
 {
-    public CreateUserValidator()
-    {
-        this.RuleFor(x => x.username)
-            .NotEmpty().WithMessage("Username is required")
-            .MaximumLength(50);
+  public CreateUserValidator()
+  {
+    this.RuleFor(x => x.username)
+        .NotEmpty().WithMessage("Username is required")
+        .MaximumLength(50);
 
-        this.RuleFor(x => x.email)
-            .NotEmpty().WithMessage("Email is required")
-            .EmailAddress().WithMessage("Invalid email format")
-            .MaximumLength(255);
+    this.RuleFor(x => x.email)
+        .NotEmpty().WithMessage("Email is required")
+        .EmailAddress().WithMessage("Invalid email format")
+        .MaximumLength(255);
 
-        this.RuleFor(x => x.password)
-            .NotEmpty().WithMessage("Password is required")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters long")
-            .MaximumLength(72).WithMessage("Password must not exceed 72 characters")
-            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter")
-            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter")
-            .Matches("[0-9]").WithMessage("Password must contain at least one number")
-            .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character");
-    }
+    this.RuleFor(x => x.password)
+        .NotEmpty().WithMessage("Password is required")
+        .MinimumLength(8).WithMessage("Password must be at least 8 characters long")
+        .MaximumLength(72).WithMessage("Password must not exceed 72 characters")
+        .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter")
+        .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter")
+        .Matches("[0-9]").WithMessage("Password must contain at least one number")
+        .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character");
+  }
 }

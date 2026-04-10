@@ -1,4 +1,4 @@
-// <copyright file="ProfileControllerTests.cs" company="PlaceholderCompany">
+﻿// <copyright file="ProfileControllerTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

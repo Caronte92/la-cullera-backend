@@ -1,4 +1,4 @@
-// <copyright file="ChangeEmailDto.cs" company="PlaceholderCompany">
+﻿// <copyright file="ChangeEmailDto.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

@@ -1,4 +1,4 @@
-using Domain.Entities;
+﻿using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;

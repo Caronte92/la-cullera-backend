@@ -1,4 +1,4 @@
-// <copyright file="DeleteAccountDto.cs" company="PlaceholderCompany">
+﻿// <copyright file="DeleteAccountDto.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

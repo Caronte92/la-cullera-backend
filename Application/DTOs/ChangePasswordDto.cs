@@ -1,4 +1,4 @@
-// <copyright file="ChangePasswordDto.cs" company="PlaceholderCompany">
+﻿// <copyright file="ChangePasswordDto.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
