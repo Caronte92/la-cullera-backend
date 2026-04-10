@@ -37,6 +37,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Unit> Units { get; set; } = null!;
 
+    public DbSet<SharedRecipe> SharedRecipes { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -54,6 +56,7 @@ public class AppDbContext : DbContext
         ConfigureTagEntity(modelBuilder);
         ConfigureRecipeTagEntity(modelBuilder);
         ConfigureUnitEntity(modelBuilder);
+        ConfigureSharedRecipeEntity(modelBuilder);
     }
 
     /// <summary>
@@ -309,5 +312,38 @@ public class AppDbContext : DbContext
         unitBuilder.HasIndex(u => u.Abbreviation)
             .IsUnique()
             .HasDatabaseName("IX_Unit_Abbreviation");
+    }
+
+    private static void ConfigureSharedRecipeEntity(ModelBuilder modelBuilder)
+    {
+        var sharedRecipeBuilder = modelBuilder.Entity<SharedRecipe>();
+
+        sharedRecipeBuilder.Property(sr => sr.Token)
+            .HasMaxLength(500)
+            .IsRequired();
+
+        sharedRecipeBuilder.HasIndex(sr => sr.Token)
+            .IsUnique()
+            .HasDatabaseName("IX_SharedRecipe_Token");
+
+        sharedRecipeBuilder.HasIndex(sr => new { sr.UserId, sr.RecipeId })
+            .IsUnique()
+            .HasFilter("\"UserId\" IS NOT NULL")
+            .HasDatabaseName("IX_SharedRecipe_UserId_RecipeId");
+
+        sharedRecipeBuilder.HasOne(sr => sr.Recipe)
+            .WithMany(r => r.SharedRecipes)
+            .HasForeignKey(sr => sr.RecipeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        sharedRecipeBuilder.HasOne(sr => sr.User)
+            .WithMany(u => u.SharedRecipes)
+            .HasForeignKey(sr => sr.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        sharedRecipeBuilder.HasOne(sr => sr.SharedByUser)
+            .WithMany(u => u.SharedByMeRecipes)
+            .HasForeignKey(sr => sr.SharedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

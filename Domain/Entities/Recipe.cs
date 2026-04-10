@@ -27,4 +27,6 @@ public class Recipe : BaseEntity
   public ICollection<Step> Steps { get; set; } = new List<Step>();
 
   public ICollection<RecipeTag> RecipeTags { get; set; } = new List<RecipeTag>();
+
+  public ICollection<SharedRecipe> SharedRecipes { get; set; } = new List<SharedRecipe>();
 }

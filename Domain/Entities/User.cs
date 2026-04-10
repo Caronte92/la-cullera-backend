@@ -36,4 +36,8 @@ public class User : BaseEntity
   public Role Role { get; set; } = null!;
 
   public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+
+  public ICollection<SharedRecipe> SharedRecipes { get; set; } = new List<SharedRecipe>();
+
+  public ICollection<SharedRecipe> SharedByMeRecipes { get; set; } = new List<SharedRecipe>();
 }
