@@ -33,14 +33,7 @@ public class RecipesControllerTests
     };
   }
 
-  private void SetUser(Guid userId)
-  {
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
-    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
-  }
-
   // --- GetAll ---
-
   [Fact]
   public async Task GetAll_ShouldReturnOkWithPagedResult()
   {
@@ -71,7 +64,6 @@ public class RecipesControllerTests
   }
 
   // --- GetBySlug ---
-
   [Fact]
   public async Task GetBySlug_ShouldReturnOk_WhenFound()
   {
@@ -99,7 +91,6 @@ public class RecipesControllerTests
   }
 
   // --- GetByTag ---
-
   [Fact]
   public async Task GetByTag_ShouldReturnOk()
   {
@@ -119,7 +110,6 @@ public class RecipesControllerTests
   }
 
   // --- GetMyRecipes ---
-
   [Fact]
   public async Task GetMyRecipes_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -148,11 +138,10 @@ public class RecipesControllerTests
   }
 
   // --- Create ---
-
   [Fact]
   public async Task Create_ShouldReturnUnauthorized_WhenNoUser()
   {
-    var dto = new CreateRecipeDto("Test", null, null, 4, 30, "easy", [], [], []);
+    var dto = new CreateRecipeDto("Test", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
 
     var result = await this.sut.Create(dto);
 
@@ -164,7 +153,7 @@ public class RecipesControllerTests
   {
     var userId = Guid.NewGuid();
     this.SetUser(userId);
-    var dto = new CreateRecipeDto("Paella", null, null, 4, 30, "easy", [], [], []);
+    var dto = new CreateRecipeDto("Paella", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
     this.recipeRepoMock
         .Setup(r => r.ExistsBySlugAsync("paella", default))
         .ReturnsAsync(true);
@@ -194,22 +183,26 @@ public class RecipesControllerTests
 
     var created = result.Should().BeOfType<CreatedResult>().Subject;
     created.Location.Should().Contain("paella");
-    this.recipeRepoMock.Verify(r => r.AddAsync(It.Is<Recipe>(rec =>
-        rec.Name == "Paella" &&
-        rec.Slug == "paella" &&
-        rec.UserId == userId &&
-        rec.Ingredients.Count == 1 &&
-        rec.Steps.Count == 1 &&
-        rec.RecipeTags.Count == 1), default), Times.Once);
+    this.recipeRepoMock.Verify(
+        r => r.AddAsync(
+            It.Is<Recipe>(
+                rec =>
+                rec.Name == "Paella" &&
+                rec.Slug == "paella" &&
+                rec.UserId == userId &&
+                rec.Ingredients.Count == 1 &&
+                rec.Steps.Count == 1 &&
+                rec.RecipeTags.Count == 1),
+            default),
+        Times.Once);
     this.recipeRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
   // --- Update ---
-
   [Fact]
   public async Task Update_ShouldReturnUnauthorized_WhenNoUser()
   {
-    var dto = new UpdateRecipeDto("Test", null, null, 4, 30, "easy", [], [], []);
+    var dto = new UpdateRecipeDto("Test", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
 
     var result = await this.sut.Update(Guid.NewGuid(), dto);
 
@@ -225,7 +218,7 @@ public class RecipesControllerTests
         .Setup(r => r.GetWithDetailsAsync(It.IsAny<Guid>(), default))
         .ReturnsAsync((Recipe?)null);
 
-    var dto = new UpdateRecipeDto("Test", null, null, 4, 30, "easy", [], [], []);
+    var dto = new UpdateRecipeDto("Test", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
     var result = await this.sut.Update(Guid.NewGuid(), dto);
 
     result.Should().BeOfType<NotFoundObjectResult>();
@@ -242,7 +235,7 @@ public class RecipesControllerTests
         .Setup(r => r.GetWithDetailsAsync(It.IsAny<Guid>(), default))
         .ReturnsAsync(recipe);
 
-    var dto = new UpdateRecipeDto("Updated", null, null, 4, 30, "easy", [], [], []);
+    var dto = new UpdateRecipeDto("Updated", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
     var result = await this.sut.Update(recipe.Id, dto);
 
     result.Should().BeOfType<ForbidResult>();
@@ -261,17 +254,19 @@ public class RecipesControllerTests
         .Setup(r => r.ExistsBySlugAsync("updated", default))
         .ReturnsAsync(false);
 
-    var dto = new UpdateRecipeDto("Updated", null, null, 6, 45, "hard", [], [], []);
+    var dto = new UpdateRecipeDto("Updated", null, null, 6, 45, "hard", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
     var result = await this.sut.Update(recipe.Id, dto);
 
     result.Should().BeOfType<OkObjectResult>();
-    this.recipeRepoMock.Verify(r => r.UpdateAsync(It.Is<Recipe>(rec =>
-        rec.Name == "Updated" && rec.Slug == "updated"), default), Times.Once);
+    this.recipeRepoMock.Verify(
+        r => r.UpdateAsync(
+            It.Is<Recipe>(rec => rec.Name == "Updated" && rec.Slug == "updated"),
+            default),
+        Times.Once);
     this.recipeRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
   // --- Delete ---
-
   [Fact]
   public async Task Delete_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -324,5 +319,11 @@ public class RecipesControllerTests
     result.Should().BeOfType<NoContentResult>();
     this.recipeRepoMock.Verify(r => r.DeleteAsync(recipe, userId.ToString(), default), Times.Once);
     this.recipeRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
+  }
+
+  private void SetUser(Guid userId)
+  {
+    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
+    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
   }
 }

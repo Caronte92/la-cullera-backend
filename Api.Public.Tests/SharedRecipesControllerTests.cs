@@ -31,14 +31,7 @@ public class SharedRecipesControllerTests
     };
   }
 
-  private void SetUser(Guid userId)
-  {
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
-    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
-  }
-
   // --- Share ---
-
   [Fact]
   public async Task Share_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -90,15 +83,19 @@ public class SharedRecipesControllerTests
     var result = await this.sut.Share(recipe.Id);
 
     result.Should().BeOfType<CreatedResult>();
-    this.sharedRepoMock.Verify(r => r.AddAsync(It.Is<SharedRecipe>(sr =>
-        sr.RecipeId == recipe.Id &&
-        sr.SharedByUserId == userId &&
-        !string.IsNullOrEmpty(sr.Token)), default), Times.Once);
+    this.sharedRepoMock.Verify(
+        r => r.AddAsync(
+            It.Is<SharedRecipe>(
+                sr =>
+                sr.RecipeId == recipe.Id &&
+                sr.SharedByUserId == userId &&
+                !string.IsNullOrEmpty(sr.Token)),
+            default),
+        Times.Once);
     this.sharedRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
   // --- Accept ---
-
   [Fact]
   public async Task Accept_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -243,7 +240,6 @@ public class SharedRecipesControllerTests
   }
 
   // --- GetMySharedRecipes ---
-
   [Fact]
   public async Task GetMySharedRecipes_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -279,7 +275,6 @@ public class SharedRecipesControllerTests
   }
 
   // --- GetByToken ---
-
   [Fact]
   public async Task GetByToken_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -375,7 +370,6 @@ public class SharedRecipesControllerTests
   }
 
   // --- Delete ---
-
   [Fact]
   public async Task Delete_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -462,5 +456,11 @@ public class SharedRecipesControllerTests
 
     result.Should().BeOfType<NoContentResult>();
     this.sharedRepoMock.Verify(r => r.DeleteAsync(shared, userId.ToString(), default), Times.Once);
+  }
+
+  private void SetUser(Guid userId)
+  {
+    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
+    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
   }
 }

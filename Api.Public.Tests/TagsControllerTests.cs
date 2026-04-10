@@ -30,7 +30,6 @@ public class TagsControllerTests
   }
 
   // --- GetAll ---
-
   [Fact]
   public async Task GetAll_ShouldReturnOkWithTags()
   {
@@ -48,7 +47,6 @@ public class TagsControllerTests
   }
 
   // --- GetBySlug ---
-
   [Fact]
   public async Task GetBySlug_ShouldReturnOk_WhenFound()
   {
@@ -72,7 +70,6 @@ public class TagsControllerTests
   }
 
   // --- Search ---
-
   [Fact]
   public async Task Search_ShouldReturnBadRequest_WhenQueryEmpty()
   {
@@ -94,7 +91,6 @@ public class TagsControllerTests
   }
 
   // --- Create ---
-
   [Fact]
   public async Task Create_ShouldReturnConflict_WhenNameExists()
   {
@@ -114,13 +110,15 @@ public class TagsControllerTests
 
     var created = result.Should().BeOfType<CreatedResult>().Subject;
     created.Location.Should().Contain("vegetarian");
-    this.tagRepoMock.Verify(r => r.AddAsync(It.Is<Tag>(t =>
-        t.Name == "Vegetarian" && t.Slug == "vegetarian"), default), Times.Once);
+    this.tagRepoMock.Verify(
+        r => r.AddAsync(
+            It.Is<Tag>(t => t.Name == "Vegetarian" && t.Slug == "vegetarian"),
+            default),
+        Times.Once);
     this.tagRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
   // --- Update ---
-
   [Fact]
   public async Task Update_ShouldReturnNotFound_WhenTagNotFound()
   {
@@ -153,8 +151,11 @@ public class TagsControllerTests
     var result = await this.sut.Update(tag.Id, new UpdateTagDto("Updated"));
 
     result.Should().BeOfType<OkObjectResult>();
-    this.tagRepoMock.Verify(r => r.UpdateAsync(It.Is<Tag>(t =>
-        t.Name == "Updated" && t.Slug == "updated"), default), Times.Once);
+    this.tagRepoMock.Verify(
+        r => r.UpdateAsync(
+            It.Is<Tag>(t => t.Name == "Updated" && t.Slug == "updated"),
+            default),
+        Times.Once);
     this.tagRepoMock.Verify(r => r.SaveChangesAsync(default), Times.Once);
   }
 
@@ -171,7 +172,6 @@ public class TagsControllerTests
   }
 
   // --- Delete ---
-
   [Fact]
   public async Task Delete_ShouldReturnNotFound_WhenTagNotFound()
   {

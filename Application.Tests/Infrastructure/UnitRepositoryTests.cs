@@ -9,24 +9,6 @@ namespace Application.Tests.Infrastructure;
 
 public class UnitRepositoryTests
 {
-  private DbContextOptions<AppDbContext> CreateOptions()
-  {
-    return new DbContextOptionsBuilder<AppDbContext>()
-        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-        .Options;
-  }
-
-  private static Unit CreateUnit(string name = "gramo", string abbreviation = "g", string type = "weight", decimal factor = 1m)
-  {
-    return new Unit
-    {
-      Name = name,
-      Abbreviation = abbreviation,
-      Type = type,
-      ToBaseFactor = factor,
-    };
-  }
-
   [Fact]
   public async Task AddAsync_ShouldAddUnitToDatabase()
   {
@@ -231,5 +213,23 @@ public class UnitRepositoryTests
     deleted.IsDeleted.Should().BeTrue();
     deleted.DeletedAt.Should().NotBeNull();
     deleted.DeletedBy.Should().Be("admin");
+  }
+
+  private static Unit CreateUnit(string name = "gramo", string abbreviation = "g", string type = "weight", decimal factor = 1m)
+  {
+    return new Unit
+    {
+      Name = name,
+      Abbreviation = abbreviation,
+      Type = type,
+      ToBaseFactor = factor,
+    };
+  }
+
+  private DbContextOptions<AppDbContext> CreateOptions()
+  {
+    return new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
   }
 }

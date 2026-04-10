@@ -174,12 +174,6 @@ public class SharedRecipesController : ControllerBase
     return this.NoContent();
   }
 
-  private Guid? GetUserId()
-  {
-    var claim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    return Guid.TryParse(claim, out var id) ? id : null;
-  }
-
   private static string GenerateToken()
   {
     var bytes = RandomNumberGenerator.GetBytes(64);
@@ -187,5 +181,11 @@ public class SharedRecipesController : ControllerBase
         .Replace("+", "-")
         .Replace("/", "_")
         .TrimEnd('=');
+  }
+
+  private Guid? GetUserId()
+  {
+    var claim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    return Guid.TryParse(claim, out var id) ? id : null;
   }
 }

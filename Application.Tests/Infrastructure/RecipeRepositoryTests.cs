@@ -9,37 +9,6 @@ namespace Application.Tests.Infrastructure;
 
 public class RecipeRepositoryTests
 {
-  private DbContextOptions<AppDbContext> CreateOptions()
-  {
-    return new DbContextOptionsBuilder<AppDbContext>()
-        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-        .Options;
-  }
-
-  private static Recipe CreateRecipe(string name = "Test Recipe", string slug = "test-recipe", Guid? userId = null)
-  {
-    return new Recipe
-    {
-      Name = name,
-      Slug = slug,
-      Difficulty = "easy",
-      UserId = userId ?? Guid.NewGuid(),
-      ServingBase = 4,
-      TimeCook = 30,
-    };
-  }
-
-  private static Unit CreateUnit(string name = "gramo", string abbreviation = "g", string type = "weight", decimal factor = 1m)
-  {
-    return new Unit
-    {
-      Name = name,
-      Abbreviation = abbreviation,
-      Type = type,
-      ToBaseFactor = factor,
-    };
-  }
-
   [Fact]
   public async Task AddAsync_ShouldAddRecipeToDatabase()
   {
@@ -312,5 +281,36 @@ public class RecipeRepositoryTests
     deleted.IsDeleted.Should().BeTrue();
     deleted.DeletedAt.Should().NotBeNull();
     deleted.DeletedBy.Should().Be("admin");
+  }
+
+  private static Recipe CreateRecipe(string name = "Test Recipe", string slug = "test-recipe", Guid? userId = null)
+  {
+    return new Recipe
+    {
+      Name = name,
+      Slug = slug,
+      Difficulty = "easy",
+      UserId = userId ?? Guid.NewGuid(),
+      ServingBase = 4,
+      TimeCook = 30,
+    };
+  }
+
+  private static Unit CreateUnit(string name = "gramo", string abbreviation = "g", string type = "weight", decimal factor = 1m)
+  {
+    return new Unit
+    {
+      Name = name,
+      Abbreviation = abbreviation,
+      Type = type,
+      ToBaseFactor = factor,
+    };
+  }
+
+  private DbContextOptions<AppDbContext> CreateOptions()
+  {
+    return new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
   }
 }

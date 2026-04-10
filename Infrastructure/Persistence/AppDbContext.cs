@@ -11,8 +11,8 @@ namespace Infrastructure.Persistence;
 
 public class AppDbContext : DbContext
 {
-    public static readonly Guid AdminRoleId = new("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
-    public static readonly Guid UserRoleId = new("b2c3d4e5-f6a7-8901-bcde-f12345678901");
+    public static readonly Guid AdminRoleId = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+    public static readonly Guid UserRoleId = new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901");
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
           : base(options)

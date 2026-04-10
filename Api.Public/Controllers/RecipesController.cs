@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Public.Controllers;
 
+/// <summary>
+/// Controller for managing recipes.
+/// </summary>
 [ApiController]
 [Route("recipes")]
 [Authorize]
@@ -241,6 +244,24 @@ public partial class RecipesController : ControllerBase
     return this.NoContent();
   }
 
+  private static string GenerateSlug(string name)
+  {
+    var slug = name.ToLower(CultureInfo.InvariantCulture).Trim();
+    slug = SlugInvalidCharsRegex().Replace(slug, string.Empty);
+    slug = SlugWhitespaceRegex().Replace(slug, "-");
+    slug = SlugMultipleDashRegex().Replace(slug, "-");
+    return slug.Trim('-');
+  }
+
+  [GeneratedRegex(@"[^a-z0-9\s-]")]
+  private static partial Regex SlugInvalidCharsRegex();
+
+  [GeneratedRegex(@"\s+")]
+  private static partial Regex SlugWhitespaceRegex();
+
+  [GeneratedRegex(@"-{2,}")]
+  private static partial Regex SlugMultipleDashRegex();
+
   private async Task<Tag> ResolveTagAsync(string tagName)
   {
     var existing = await this.tagRepository.GetByNameAsync(tagName);
@@ -265,22 +286,4 @@ public partial class RecipesController : ControllerBase
     var claim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     return Guid.TryParse(claim, out var id) ? id : null;
   }
-
-  private static string GenerateSlug(string name)
-  {
-    var slug = name.ToLower(CultureInfo.InvariantCulture).Trim();
-    slug = SlugInvalidCharsRegex().Replace(slug, string.Empty);
-    slug = SlugWhitespaceRegex().Replace(slug, "-");
-    slug = SlugMultipleDashRegex().Replace(slug, "-");
-    return slug.Trim('-');
-  }
-
-  [GeneratedRegex(@"[^a-z0-9\s-]")]
-  private static partial Regex SlugInvalidCharsRegex();
-
-  [GeneratedRegex(@"\s+")]
-  private static partial Regex SlugWhitespaceRegex();
-
-  [GeneratedRegex(@"-{2,}")]
-  private static partial Regex SlugMultipleDashRegex();
 }

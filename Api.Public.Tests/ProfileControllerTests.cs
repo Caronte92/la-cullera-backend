@@ -30,14 +30,7 @@ public class ProfileControllerTests
     };
   }
 
-  private void SetUser(Guid userId)
-  {
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
-    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
-  }
-
   // --- GetProfile ---
-
   [Fact]
   public async Task GetProfile_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -72,7 +65,6 @@ public class ProfileControllerTests
   }
 
   // --- ChangePassword ---
-
   [Fact]
   public async Task ChangePassword_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -108,7 +100,6 @@ public class ProfileControllerTests
   }
 
   // --- ChangeEmail ---
-
   [Fact]
   public async Task ChangeEmail_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -156,7 +147,6 @@ public class ProfileControllerTests
   }
 
   // --- DeleteAccount ---
-
   [Fact]
   public async Task DeleteAccount_ShouldReturnUnauthorized_WhenNoUser()
   {
@@ -187,5 +177,11 @@ public class ProfileControllerTests
     var result = await this.sut.DeleteAccount(new DeleteAccountDto("pass"));
 
     result.Should().BeOfType<NoContentResult>();
+  }
+
+  private void SetUser(Guid userId)
+  {
+    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
+    this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
   }
 }

@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Public.Controllers;
 
+/// <summary>
+/// Controller for managing tags.
+/// </summary>
 [ApiController]
 [Route("tags")]
 [Authorize]

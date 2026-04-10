@@ -9,18 +9,6 @@ namespace Application.Tests.Infrastructure;
 
 public class TagRepositoryTests
 {
-  private DbContextOptions<AppDbContext> CreateOptions()
-  {
-    return new DbContextOptionsBuilder<AppDbContext>()
-        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-        .Options;
-  }
-
-  private static Tag CreateTag(string name = "Vegano", string slug = "vegano")
-  {
-    return new Tag { Name = name, Slug = slug };
-  }
-
   [Fact]
   public async Task AddAsync_ShouldAddTagToDatabase()
   {
@@ -183,5 +171,17 @@ public class TagRepositoryTests
     deleted.IsDeleted.Should().BeTrue();
     deleted.DeletedAt.Should().NotBeNull();
     deleted.DeletedBy.Should().Be("admin");
+  }
+
+  private static Tag CreateTag(string name = "Vegano", string slug = "vegano")
+  {
+    return new Tag { Name = name, Slug = slug };
+  }
+
+  private DbContextOptions<AppDbContext> CreateOptions()
+  {
+    return new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
   }
 }
