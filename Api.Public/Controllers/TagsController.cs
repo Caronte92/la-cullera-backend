@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Application.DTOs;
 using Application.Interfaces;
@@ -25,6 +26,19 @@ public partial class TagsController : ControllerBase
   public TagsController(ITagRepository tagRepository)
   {
     this.tagRepository = tagRepository;
+  }
+
+  [HttpGet("mine")]
+  public async Task<IActionResult> GetMyTags()
+  {
+    var userId = this.GetUserId();
+    if (userId == null)
+    {
+      return this.Unauthorized();
+    }
+
+    var tags = await this.tagRepository.GetByUserIdAsync(userId.Value);
+    return this.Ok(tags);
   }
 
   [HttpGet]
@@ -136,4 +150,10 @@ public partial class TagsController : ControllerBase
 
   [GeneratedRegex(@"-{2,}")]
   private static partial Regex SlugMultipleDashRegex();
+
+  private Guid? GetUserId()
+  {
+    var claim = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    return Guid.TryParse(claim, out var id) ? id : null;
+  }
 }

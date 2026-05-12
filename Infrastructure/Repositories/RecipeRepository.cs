@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Infrastructure.Repositories;
 
@@ -66,8 +67,7 @@ public class RecipeRepository : IRecipeRepository
 
     if (!string.IsNullOrWhiteSpace(search))
     {
-      var searchLower = search.ToLowerInvariant();
-      query = query.Where(r => EF.Functions.ILike(r.Name, $"%{searchLower}%"));
+      query = query.Where(r => Regex.IsMatch(r.Name, search, RegexOptions.IgnoreCase));
     }
 
     var totalCount = await query.CountAsync(cancellationToken);

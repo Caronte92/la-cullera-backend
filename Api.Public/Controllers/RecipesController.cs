@@ -47,6 +47,18 @@ public partial class RecipesController : ControllerBase
       pageSize = 10;
     }
 
+    if (!string.IsNullOrWhiteSpace(search))
+    {
+      try
+      {
+        _ = new Regex(search);
+      }
+      catch (ArgumentException)
+      {
+        return this.BadRequest(new { message = "Invalid regex pattern" });
+      }
+    }
+
     var result = await this.recipeRepository.GetPagedAsync(page, pageSize, userId, search);
 
     return this.Ok(result);
@@ -131,6 +143,7 @@ public partial class RecipesController : ControllerBase
       {
         Order = stepDto.order,
         Description = stepDto.description,
+        TimerSeconds = stepDto.timerSeconds,
       });
     }
 
@@ -201,6 +214,7 @@ public partial class RecipesController : ControllerBase
       {
         Order = stepDto.order,
         Description = stepDto.description,
+        TimerSeconds = stepDto.timerSeconds,
       });
     }
 

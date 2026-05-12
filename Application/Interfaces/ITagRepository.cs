@@ -14,6 +14,8 @@ public interface ITagRepository
 
   Task<IEnumerable<Tag>> SearchByNameAsync(string name, CancellationToken cancellationToken = default);
 
+  Task<IEnumerable<Tag>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
   Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
 
   Task AddAsync(Tag tag, CancellationToken cancellationToken = default);

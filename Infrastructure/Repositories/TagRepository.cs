@@ -52,6 +52,15 @@ public class TagRepository : ITagRepository
         .ToListAsync(cancellationToken);
   }
 
+  public async Task<IEnumerable<Tag>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  {
+    return await this.context.Tags
+        .AsNoTracking()
+        .Where(t => !t.IsDeleted && t.RecipeTags.Any(rt => !rt.IsDeleted && rt.Recipe.UserId == userId && !rt.Recipe.IsDeleted))
+        .OrderBy(t => t.Name)
+        .ToListAsync(cancellationToken);
+  }
+
   public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
   {
     return await this.context.Tags

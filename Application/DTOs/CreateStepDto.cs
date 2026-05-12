@@ -6,4 +6,5 @@ namespace Application.DTOs;
 
 public record CreateStepDto(
     int order,
-    string description);
+    string description,
+    int? timerSeconds = null);

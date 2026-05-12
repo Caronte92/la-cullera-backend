@@ -10,5 +10,7 @@ public class Step : BaseEntity
 
   public required string Description { get; set; }
 
+  public int? TimerSeconds { get; set; }
+
   public Recipe Recipe { get; set; } = null!;
 }
