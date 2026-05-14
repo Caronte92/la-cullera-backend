@@ -21,6 +21,7 @@ public class UnitsController : ControllerBase
   }
 
   [HttpGet]
+  [AllowAnonymous]
   public async Task<IActionResult> GetAll()
   {
     var units = await this.unitRepository.GetAllAsync();
