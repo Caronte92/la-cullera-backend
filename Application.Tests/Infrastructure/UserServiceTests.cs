@@ -92,7 +92,7 @@ public class UserServiceTests
     result!.accessToken.Should().Be("access-token");
     result.refreshToken.Should().NotBeNullOrEmpty();
     result.tokenType.Should().Be("Bearer");
-    result.expiresIn.Should().Be(3600);
+    result.expiresIn.Should().Be(86400);
   }
 
   [Fact]
