@@ -24,8 +24,8 @@ public class TokenService : ITokenService
   {
     var secret = this.configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET")
         ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
-    var expiryMinutesString = this.configuration["JWT_EXPIRY_MINUTES"] ?? Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "60";
-    var expiryMinutes = int.TryParse(expiryMinutesString, out var m) ? m : 60;
+    var expiryMinutesString = this.configuration["JWT_EXPIRY_MINUTES"] ?? Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "1440";
+    var expiryMinutes = int.TryParse(expiryMinutesString, out var m) ? m : 1440;
 
     var claims = new List<Claim>
         {

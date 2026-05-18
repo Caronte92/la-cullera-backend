@@ -76,7 +76,7 @@ public class UserService : IUserService
         accessToken,
         refreshToken.Token,
         "Bearer",
-        3600);
+        86400);
   }
 
   /// <inheritdoc/>
@@ -125,7 +125,7 @@ public class UserService : IUserService
         newAccessToken,
         newRefreshToken.Token,
         "Bearer",
-        3600);
+        86400);
   }
 
   /// <inheritdoc/>
