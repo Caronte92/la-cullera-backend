@@ -1,9 +1,9 @@
-﻿using Application.Common.Models;
+﻿using System.Text.RegularExpressions;
+using Application.Common.Models;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace Infrastructure.Repositories;
 

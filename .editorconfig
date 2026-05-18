@@ -31,3 +31,8 @@ dotnet_diagnostic.IDE0055.severity = suggestion
 
 # File headers disabled
 file_header_template =
+
+# Auto-generated migration files - disable StyleCop
+[**/Migrations/*.cs]
+dotnet_diagnostic.SA1413.severity = none
+dotnet_diagnostic.SA1118.severity = none
