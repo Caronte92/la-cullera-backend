@@ -215,7 +215,7 @@ public class RecipesControllerTests
     var userId = Guid.NewGuid();
     this.SetUser(userId);
     this.recipeRepoMock
-        .Setup(r => r.GetWithDetailsAsync(It.IsAny<Guid>(), default))
+        .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), default))
         .ReturnsAsync((Recipe?)null);
 
     var dto = new UpdateRecipeDto("Test", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
@@ -232,7 +232,7 @@ public class RecipesControllerTests
     this.SetUser(userId);
     var recipe = new Recipe { Name = "Other", Slug = "other", Difficulty = "easy", UserId = otherUserId };
     this.recipeRepoMock
-        .Setup(r => r.GetWithDetailsAsync(It.IsAny<Guid>(), default))
+        .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), default))
         .ReturnsAsync(recipe);
 
     var dto = new UpdateRecipeDto("Updated", null, null, 4, 30, "easy", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
@@ -248,11 +248,14 @@ public class RecipesControllerTests
     this.SetUser(userId);
     var recipe = new Recipe { Name = "Old", Slug = "old", Difficulty = "easy", UserId = userId };
     this.recipeRepoMock
-        .Setup(r => r.GetWithDetailsAsync(recipe.Id, default))
+        .Setup(r => r.GetByIdAsync(recipe.Id, default))
         .ReturnsAsync(recipe);
     this.recipeRepoMock
         .Setup(r => r.ExistsBySlugAsync("updated", default))
         .ReturnsAsync(false);
+    this.recipeRepoMock
+        .Setup(r => r.ReplaceChildrenAsync(recipe.Id, It.IsAny<IEnumerable<Ingredient>>(), It.IsAny<IEnumerable<Step>>(), It.IsAny<IEnumerable<RecipeTag>>(), default))
+        .Returns(Task.CompletedTask);
 
     var dto = new UpdateRecipeDto("Updated", null, null, 6, 45, "hard", Array.Empty<CreateIngredientDto>(), Array.Empty<CreateStepDto>(), Array.Empty<string>());
     var result = await this.sut.Update(recipe.Id, dto);
