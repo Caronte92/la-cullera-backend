@@ -19,7 +19,6 @@ public class RecipeRepository : IRecipeRepository
   public async Task<Recipe?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
   {
     return await this.context.Recipes
-        .AsNoTracking()
         .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted, cancellationToken);
   }
 
@@ -39,7 +38,6 @@ public class RecipeRepository : IRecipeRepository
   public async Task<Recipe?> GetWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
   {
     return await this.context.Recipes
-        .AsNoTracking()
         .Include(r => r.Ingredients.OrderBy(i => i.Order))
             .ThenInclude(i => i.Unit)
         .Include(r => r.Steps.OrderBy(s => s.Order))
@@ -120,8 +118,34 @@ public class RecipeRepository : IRecipeRepository
   public async Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default)
   {
     recipe.UpdatedAt = DateTime.UtcNow;
-    this.context.Recipes.Update(recipe);
     await Task.CompletedTask;
+  }
+
+  public async Task DeleteChildrenAsync(Guid recipeId, CancellationToken cancellationToken = default)
+  {
+    await this.context.RecipeTags
+        .Where(rt => rt.RecipeId == recipeId)
+        .ExecuteDeleteAsync(cancellationToken);
+    await this.context.Steps
+        .Where(s => s.RecipeId == recipeId)
+        .ExecuteDeleteAsync(cancellationToken);
+    await this.context.Ingredients
+        .Where(i => i.RecipeId == recipeId)
+        .ExecuteDeleteAsync(cancellationToken);
+  }
+
+  public async Task ReplaceChildrenAsync(
+    Guid recipeId,
+    IEnumerable<Ingredient> ingredients,
+    IEnumerable<Step> steps,
+    IEnumerable<RecipeTag> recipeTags,
+    CancellationToken cancellationToken = default)
+  {
+    await this.DeleteChildrenAsync(recipeId, cancellationToken);
+
+    await this.context.Ingredients.AddRangeAsync(ingredients, cancellationToken);
+    await this.context.Steps.AddRangeAsync(steps, cancellationToken);
+    await this.context.RecipeTags.AddRangeAsync(recipeTags, cancellationToken);
   }
 
   public async Task DeleteAsync(Recipe recipe, string? deletedBy = null, CancellationToken cancellationToken = default)
@@ -129,12 +153,23 @@ public class RecipeRepository : IRecipeRepository
     recipe.IsDeleted = true;
     recipe.DeletedAt = DateTime.UtcNow;
     recipe.DeletedBy = deletedBy;
-    this.context.Recipes.Update(recipe);
     await Task.CompletedTask;
   }
 
   public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
   {
+    foreach (var entry in this.context.ChangeTracker.Entries())
+    {
+      Console.WriteLine($"[TRACKER] {entry.Entity.GetType().Name} => {entry.State}");
+      if (entry.State == EntityState.Modified)
+      {
+        foreach (var prop in entry.Properties.Where(p => p.IsModified))
+        {
+          Console.WriteLine($"  [DIRTY] {prop.Metadata.Name}: '{prop.OriginalValue}' -> '{prop.CurrentValue}'");
+        }
+      }
+    }
+
     await this.context.SaveChangesAsync(cancellationToken);
   }
 }

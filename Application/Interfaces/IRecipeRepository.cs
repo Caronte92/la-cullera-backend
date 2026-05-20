@@ -25,5 +25,14 @@ public interface IRecipeRepository
 
   Task DeleteAsync(Recipe recipe, string? deletedBy = null, CancellationToken cancellationToken = default);
 
+  Task DeleteChildrenAsync(Guid recipeId, CancellationToken cancellationToken = default);
+
+  Task ReplaceChildrenAsync(
+    Guid recipeId,
+    IEnumerable<Ingredient> ingredients,
+    IEnumerable<Step> steps,
+    IEnumerable<RecipeTag> recipeTags,
+    CancellationToken cancellationToken = default);
+
   Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

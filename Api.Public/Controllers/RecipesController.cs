@@ -168,7 +168,7 @@ public partial class RecipesController : ControllerBase
       return this.Unauthorized();
     }
 
-    var recipe = await this.recipeRepository.GetWithDetailsAsync(id);
+    var recipe = await this.recipeRepository.GetByIdAsync(id);
 
     if (recipe == null)
     {
@@ -195,37 +195,33 @@ public partial class RecipesController : ControllerBase
     recipe.Difficulty = dto.difficulty;
     recipe.UpdatedBy = userId.Value.ToString();
 
-    recipe.Ingredients.Clear();
-    foreach (var ingredientDto in dto.ingredients)
+    var ingredients = dto.ingredients.Select(i => new Ingredient
     {
-      recipe.Ingredients.Add(new Ingredient
-      {
-        Name = ingredientDto.name,
-        Amount = ingredientDto.amount,
-        UnitId = ingredientDto.unitId,
-        Order = ingredientDto.order,
-      });
-    }
+      RecipeId = id,
+      Name = i.name,
+      Amount = i.amount,
+      UnitId = i.unitId,
+      Order = i.order,
+    });
 
-    recipe.Steps.Clear();
-    foreach (var stepDto in dto.steps)
+    var steps = dto.steps.Select(s => new Step
     {
-      recipe.Steps.Add(new Step
-      {
-        Order = stepDto.order,
-        Description = stepDto.description,
-        TimerSeconds = stepDto.timerSeconds,
-      });
-    }
+      RecipeId = id,
+      Order = s.order,
+      Description = s.description,
+      TimerSeconds = s.timerSeconds,
+    });
 
-    recipe.RecipeTags.Clear();
+    var resolvedTags = new List<Tag>();
     foreach (var tagName in dto.tags)
     {
-      var tag = await this.ResolveTagAsync(tagName);
-      recipe.RecipeTags.Add(new RecipeTag { TagId = tag.Id });
+      resolvedTags.Add(await this.ResolveTagAsync(tagName));
     }
 
+    var recipeTags = resolvedTags.Select(t => new RecipeTag { RecipeId = id, TagId = t.Id });
+
     await this.recipeRepository.UpdateAsync(recipe);
+    await this.recipeRepository.ReplaceChildrenAsync(id, ingredients, steps, recipeTags);
     await this.recipeRepository.SaveChangesAsync();
 
     return this.Ok(new { recipe.Id, recipe.Slug });
@@ -291,7 +287,6 @@ public partial class RecipesController : ControllerBase
     };
 
     await this.tagRepository.AddAsync(tag);
-    await this.tagRepository.SaveChangesAsync();
     return tag;
   }
 
