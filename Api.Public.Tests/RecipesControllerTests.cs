@@ -40,7 +40,7 @@ public class RecipesControllerTests
     var recipes = new List<Recipe> { new Recipe { Name = "Paella", Slug = "paella", Difficulty = "medium" } };
     var paged = new PagedResult<Recipe>(recipes, 1, 1, 10);
     this.recipeRepoMock
-        .Setup(r => r.GetPagedAsync(1, 10, null, null, default))
+        .Setup(r => r.GetPagedAsync(1, 10, null, null, null, null, null, default))
         .ReturnsAsync(paged);
 
     var result = await this.sut.GetAll();
@@ -54,13 +54,13 @@ public class RecipesControllerTests
   {
     var paged = new PagedResult<Recipe>([], 0, 1, 10);
     this.recipeRepoMock
-        .Setup(r => r.GetPagedAsync(1, 10, null, null, default))
+        .Setup(r => r.GetPagedAsync(1, 10, null, null, null, null, null, default))
         .ReturnsAsync(paged);
 
     var result = await this.sut.GetAll(page: -1, pageSize: 999);
 
     result.Should().BeOfType<OkObjectResult>();
-    this.recipeRepoMock.Verify(r => r.GetPagedAsync(1, 10, null, null, default), Times.Once);
+    this.recipeRepoMock.Verify(r => r.GetPagedAsync(1, 10, null, null, null, null, null, default), Times.Once);
   }
 
   // --- GetBySlug ---
