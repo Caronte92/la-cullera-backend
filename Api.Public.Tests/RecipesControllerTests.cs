@@ -127,14 +127,15 @@ public class RecipesControllerTests
     {
       new Recipe { Name = "Mine", Slug = "mine", Difficulty = "easy", UserId = userId },
     };
+    var paged = new PagedResult<Recipe>(recipes, 1, 1, 10);
     this.recipeRepoMock
-        .Setup(r => r.GetByUserIdAsync(userId, default))
-        .ReturnsAsync(recipes);
+        .Setup(r => r.GetPagedAsync(1, 10, userId, null, null, null, null, default))
+        .ReturnsAsync(paged);
 
     var result = await this.sut.GetMyRecipes();
 
     var ok = result.Should().BeOfType<OkObjectResult>().Subject;
-    ok.Value.Should().Be(recipes);
+    ok.Value.Should().Be(paged);
   }
 
   // --- Create ---

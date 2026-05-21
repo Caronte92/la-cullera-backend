@@ -94,7 +94,13 @@ public partial class RecipesController : ControllerBase
   }
 
   [HttpGet("mine")]
-  public async Task<IActionResult> GetMyRecipes()
+  public async Task<IActionResult> GetMyRecipes(
+      [FromQuery] int page = 1,
+      [FromQuery] int pageSize = 10,
+      [FromQuery] string? name = null,
+      [FromQuery] List<Guid>? tagIds = null,
+      [FromQuery] string? difficulty = null,
+      [FromQuery] string? timeRange = null)
   {
     var userId = this.GetUserId();
     if (userId == null)
@@ -102,8 +108,36 @@ public partial class RecipesController : ControllerBase
       return this.Unauthorized();
     }
 
-    var recipes = await this.recipeRepository.GetByUserIdAsync(userId.Value);
-    return this.Ok(recipes);
+    if (page < 1)
+    {
+      page = 1;
+    }
+
+    if (pageSize < 1 || pageSize > 50)
+    {
+      pageSize = 10;
+    }
+
+    if (!string.IsNullOrWhiteSpace(name))
+    {
+      try
+      {
+        _ = new Regex(name);
+      }
+      catch (ArgumentException)
+      {
+        return this.BadRequest(new { message = "Invalid regex pattern" });
+      }
+    }
+
+    var validTimeRanges = new[] { "under30", "30to60", "over60" };
+    if (timeRange is not null && !validTimeRanges.Contains(timeRange))
+    {
+      return this.BadRequest(new { message = "timeRange must be 'under30', '30to60' or 'over60'" });
+    }
+
+    var result = await this.recipeRepository.GetPagedAsync(page, pageSize, userId.Value, name, tagIds, difficulty, timeRange);
+    return this.Ok(result);
   }
 
   [HttpPost]
