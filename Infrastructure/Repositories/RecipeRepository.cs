@@ -52,6 +52,9 @@ public class RecipeRepository : IRecipeRepository
       int pageSize,
       Guid? userId = null,
       string? search = null,
+      IEnumerable<Guid>? tagIds = null,
+      string? difficulty = null,
+      string? timeRange = null,
       CancellationToken cancellationToken = default)
   {
     var query = this.context.Recipes
@@ -67,6 +70,25 @@ public class RecipeRepository : IRecipeRepository
     {
       query = query.Where(r => Regex.IsMatch(r.Name, search, RegexOptions.IgnoreCase));
     }
+
+    var tagList = tagIds?.ToList();
+    if (tagList is { Count: > 0 })
+    {
+      query = query.Where(r => r.RecipeTags.Any(rt => tagList.Contains(rt.TagId)));
+    }
+
+    if (!string.IsNullOrWhiteSpace(difficulty))
+    {
+      query = query.Where(r => r.Difficulty == difficulty);
+    }
+
+    query = timeRange switch
+    {
+      "under30" => query.Where(r => r.TimeCook < 30),
+      "30to60" => query.Where(r => r.TimeCook >= 30 && r.TimeCook <= 60),
+      "over60" => query.Where(r => r.TimeCook > 60),
+      _ => query,
+    };
 
     var totalCount = await query.CountAsync(cancellationToken);
 

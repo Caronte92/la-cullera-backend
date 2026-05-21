@@ -34,8 +34,11 @@ public partial class RecipesController : ControllerBase
   public async Task<IActionResult> GetAll(
       [FromQuery] int page = 1,
       [FromQuery] int pageSize = 10,
-      [FromQuery] string? search = null,
-      [FromQuery] Guid? userId = null)
+      [FromQuery] string? name = null,
+      [FromQuery] Guid? userId = null,
+      [FromQuery] List<Guid>? tagIds = null,
+      [FromQuery] string? difficulty = null,
+      [FromQuery] string? timeRange = null)
   {
     if (page < 1)
     {
@@ -47,11 +50,11 @@ public partial class RecipesController : ControllerBase
       pageSize = 10;
     }
 
-    if (!string.IsNullOrWhiteSpace(search))
+    if (!string.IsNullOrWhiteSpace(name))
     {
       try
       {
-        _ = new Regex(search);
+        _ = new Regex(name);
       }
       catch (ArgumentException)
       {
@@ -59,7 +62,13 @@ public partial class RecipesController : ControllerBase
       }
     }
 
-    var result = await this.recipeRepository.GetPagedAsync(page, pageSize, userId, search);
+    var validTimeRanges = new[] { "under30", "30to60", "over60" };
+    if (timeRange is not null && !validTimeRanges.Contains(timeRange))
+    {
+      return this.BadRequest(new { message = "timeRange must be 'under30', '30to60' or 'over60'" });
+    }
+
+    var result = await this.recipeRepository.GetPagedAsync(page, pageSize, userId, name, tagIds, difficulty, timeRange);
 
     return this.Ok(result);
   }

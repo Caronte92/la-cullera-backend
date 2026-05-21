@@ -11,7 +11,7 @@ public interface IRecipeRepository
 
   Task<Recipe?> GetWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
 
-  Task<PagedResult<Recipe>> GetPagedAsync(int page, int pageSize, Guid? userId = null, string? search = null, CancellationToken cancellationToken = default);
+  Task<PagedResult<Recipe>> GetPagedAsync(int page, int pageSize, Guid? userId = null, string? search = null, IEnumerable<Guid>? tagIds = null, string? difficulty = null, string? timeRange = null, CancellationToken cancellationToken = default);
 
   Task<IEnumerable<Recipe>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
