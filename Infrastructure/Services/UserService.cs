@@ -21,6 +21,7 @@ public class UserService : IUserService
   private readonly IPasswordHasher passwordHasher;
   private readonly ITokenService tokenService;
   private readonly int refreshTokenExpirationDays;
+  private readonly int accessTokenExpiresIn;
 
   public UserService(
       IUserRepository userRepository,
@@ -32,8 +33,11 @@ public class UserService : IUserService
     this.passwordHasher = passwordHasher;
     this.tokenService = tokenService;
 
-    // Load configuration with defaults
     this.refreshTokenExpirationDays = int.TryParse(configuration["Security:RefreshTokenExpirationDays"], out var refreshDays) ? refreshDays : 7;
+
+    var expiryMinutesString = configuration["JWT_EXPIRY_MINUTES"] ?? Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "1440";
+    var expiryMinutes = int.TryParse(expiryMinutesString, out var m) ? m : 1440;
+    this.accessTokenExpiresIn = expiryMinutes * 60;
   }
 
   /// <inheritdoc/>
@@ -76,7 +80,7 @@ public class UserService : IUserService
         accessToken,
         refreshToken.Token,
         "Bearer",
-        86400);
+        this.accessTokenExpiresIn);
   }
 
   /// <inheritdoc/>
@@ -125,7 +129,7 @@ public class UserService : IUserService
         newAccessToken,
         newRefreshToken.Token,
         "Bearer",
-        86400);
+        this.accessTokenExpiresIn);
   }
 
   /// <inheritdoc/>

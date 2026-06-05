@@ -4,6 +4,7 @@
 
 using System.Text;
 using System.Threading.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Api.Public.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -150,11 +151,19 @@ if (app.Environment.IsDevelopment())
 {
   app.UseSwagger();
   app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api.Public v1"));
+}
 
-  // Auto-create/update DB schema in development (no migrations needed)
-  using var scope = app.Services.CreateScope();
+using (var scope = app.Services.CreateScope())
+{
   var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
-  db.Database.EnsureCreated();
+  if (app.Environment.IsDevelopment())
+  {
+    db.Database.EnsureCreated();
+  }
+  else
+  {
+    db.Database.Migrate();
+  }
 }
 
 app.UseHttpsRedirection();

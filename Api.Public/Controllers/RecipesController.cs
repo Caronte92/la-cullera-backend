@@ -50,18 +50,6 @@ public partial class RecipesController : ControllerBase
       pageSize = 10;
     }
 
-    if (!string.IsNullOrWhiteSpace(name))
-    {
-      try
-      {
-        _ = new Regex(name);
-      }
-      catch (ArgumentException)
-      {
-        return this.BadRequest(new { message = "Invalid regex pattern" });
-      }
-    }
-
     var validTimeRanges = new[] { "under30", "30to60", "over60" };
     if (timeRange is not null && !validTimeRanges.Contains(timeRange))
     {
@@ -116,18 +104,6 @@ public partial class RecipesController : ControllerBase
     if (pageSize < 1 || pageSize > 50)
     {
       pageSize = 10;
-    }
-
-    if (!string.IsNullOrWhiteSpace(name))
-    {
-      try
-      {
-        _ = new Regex(name);
-      }
-      catch (ArgumentException)
-      {
-        return this.BadRequest(new { message = "Invalid regex pattern" });
-      }
     }
 
     var validTimeRanges = new[] { "under30", "30to60", "over60" };

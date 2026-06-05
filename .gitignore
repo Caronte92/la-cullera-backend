@@ -48,6 +48,9 @@ logs/
 
 # Coverage
 coverage*
+
+# Deploy guides (contain infrastructure details)
+DEPLOY_ORACLE.md
 .coverage
 .nyc_output
 

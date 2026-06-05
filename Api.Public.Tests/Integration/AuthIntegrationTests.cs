@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using Application.DTOs;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Api.Public.Tests.Integration;
@@ -21,42 +22,39 @@ public class AuthIntegrationTests : IClassFixture<CustomWebApplicationFactory<Pr
   }
 
   [Fact]
-  public async Task Register_ShouldReturnCreated_WhenDataIsValid()
+  public async Task Register_ShouldReturnNotFound_WhenRegistrationIsClosed()
   {
-    // Arrange
     var client = this.CreateClientWithIsolatedDb();
-    var uniqueId = Guid.NewGuid().ToString("N")[..8];
+    var dto = new CreateUserDto("anyone", "anyone@test.com", "Password123!");
 
-    var registerDto = new CreateUserDto(
-        $"integration_reg_{uniqueId}",
-        $"integration_reg_{uniqueId}@test.com",
-        "Password123!");
+    var response = await client.PostAsJsonAsync("/auth/register", dto);
 
-    // Act
-    var response = await client.PostAsJsonAsync("/auth/register", registerDto);
-
-    // Assert
-    response.StatusCode.Should().Be(HttpStatusCode.Created);
-    var content = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
-    content.GetProperty("username").GetString().Should().Be($"integration_reg_{uniqueId}");
+    response.StatusCode.Should().Be(HttpStatusCode.NotFound);
   }
 
   [Fact]
   public async Task Login_ShouldReturnTokens_WhenCredentialsAreValid()
   {
-    // Arrange
-    var client = this.CreateClientWithIsolatedDb();
-    var uniqueId = Guid.NewGuid().ToString("N")[..8];
+    // Arrange — seed user directly via service (registration endpoint is closed)
+    var appFactory = this.factory.WithWebHostBuilder(builder =>
+    {
+      builder.ConfigureAppConfiguration((_, config) =>
+      {
+        config.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+          { "JWT_SECRET", "this-is-a-very-secure-secret-key-for-testing-purposes-only-32chars" },
+        });
+      });
+    });
 
-    // Create user first
-    var registerDto = new CreateUserDto(
-        $"loginuser_{uniqueId}",
-        $"login_{uniqueId}@test.com",
-        "Password123!");
-    var registerResponse = await client.PostAsJsonAsync("/auth/register", registerDto);
-    registerResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+    using (var scope = appFactory.Services.CreateScope())
+    {
+      var userService = scope.ServiceProvider.GetRequiredService<Application.Interfaces.IUserService>();
+      await userService.RegisterAsync(new CreateUserDto("loginuser_it", "login_it@test.com", "Password123!"));
+    }
 
-    var loginRequest = new AuthenticationRequest($"loginuser_{uniqueId}", "Password123!");
+    var client = appFactory.CreateClient();
+    var loginRequest = new AuthenticationRequest("loginuser_it", "Password123!");
 
     // Act
     var response = await client.PostAsJsonAsync("/auth/login", loginRequest);

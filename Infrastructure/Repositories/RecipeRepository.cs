@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Application.Common.Models;
+﻿using Application.Common.Models;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence;
@@ -68,7 +67,7 @@ public class RecipeRepository : IRecipeRepository
 
     if (!string.IsNullOrWhiteSpace(search))
     {
-      query = query.Where(r => Regex.IsMatch(r.Name, search, RegexOptions.IgnoreCase));
+      query = query.Where(r => EF.Functions.ILike(r.Name, $"%{search}%"));
     }
 
     var tagList = tagIds?.ToList();
@@ -180,18 +179,6 @@ public class RecipeRepository : IRecipeRepository
 
   public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
   {
-    foreach (var entry in this.context.ChangeTracker.Entries())
-    {
-      Console.WriteLine($"[TRACKER] {entry.Entity.GetType().Name} => {entry.State}");
-      if (entry.State == EntityState.Modified)
-      {
-        foreach (var prop in entry.Properties.Where(p => p.IsModified))
-        {
-          Console.WriteLine($"  [DIRTY] {prop.Metadata.Name}: '{prop.OriginalValue}' -> '{prop.CurrentValue}'");
-        }
-      }
-    }
-
     await this.context.SaveChangesAsync(cancellationToken);
   }
 }

@@ -21,10 +21,6 @@ Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger()
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration).Enrich.FromLogContext().WriteTo.Console());
 
-// Add services to the container
-builder.Services.AddOpenApi();
-
-// Add services to the container
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -34,11 +30,12 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Application.Validators.CreateUserValidator>();
 
 // Authentication - JWT Bearer
-var jwtSecret = builder.Configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET") ?? "replace-with-a-secure-secret";
+var jwtSecret = builder.Configuration["JWT_SECRET"] ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? throw new InvalidOperationException("JWT_SECRET is not configured. Set it in environment variables or appsettings.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-      options.RequireHttpsMetadata = false;
+      options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
       options.SaveToken = true;
       options.TokenValidationParameters = new TokenValidationParameters
       {
