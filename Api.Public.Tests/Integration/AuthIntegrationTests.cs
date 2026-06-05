@@ -22,14 +22,14 @@ public class AuthIntegrationTests : IClassFixture<CustomWebApplicationFactory<Pr
   }
 
   [Fact]
-  public async Task Register_ShouldReturnNotFound_WhenRegistrationIsClosed()
+  public async Task Register_ShouldReturnCreated_WhenDataIsValid()
   {
     var client = this.CreateClientWithIsolatedDb();
     var dto = new CreateUserDto("anyone", "anyone@test.com", "Password123!");
 
     var response = await client.PostAsJsonAsync("/auth/register", dto);
 
-    response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    response.StatusCode.Should().Be(HttpStatusCode.Created);
   }
 
   [Fact]
