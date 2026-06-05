@@ -73,20 +73,16 @@ public class AuthController : ControllerBase
   }
 
   [HttpPost("register")]
-  public IActionResult Register()
+  public async Task<IActionResult> Register([FromBody] CreateUserDto dto)
   {
-    // Registration is currently closed.
-    // Uncomment the block below to re-enable it.
-    //
-    // try
-    // {
-    //   var user = await this.userService.RegisterAsync(dto);
-    //   return this.Created($"/users/{user.Id}", new { user.Id, user.Username, user.Email });
-    // }
-    // catch (InvalidOperationException ex)
-    // {
-    //   return this.Conflict(new { message = ex.Message });
-    // }
-    return this.NotFound();
+    try
+    {
+      var user = await this.userService.RegisterAsync(dto);
+      return this.Created($"/users/{user.Id}", new { user.Id, user.Username, user.Email });
+    }
+    catch (InvalidOperationException ex)
+    {
+      return this.Conflict(new { message = ex.Message });
+    }
   }
 }
