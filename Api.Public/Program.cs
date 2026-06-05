@@ -4,7 +4,6 @@
 
 using System.Text;
 using System.Threading.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 using Api.Public.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -12,6 +11,7 @@ using Infrastructure;
 using Infrastructure.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
