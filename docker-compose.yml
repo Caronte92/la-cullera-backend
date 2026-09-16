@@ -29,8 +29,8 @@ services:
       dockerfile: Dockerfile
       target: api-public
     container_name: api_public
-    expose:
-      - "8080"
+    ports:
+      - "9000:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -52,8 +52,8 @@ services:
       dockerfile: Dockerfile
       target: api-admin
     container_name: api_admin
-    expose:
-      - "8080"
+    ports:
+      - "9001:8080"
     depends_on:
       db:
         condition: service_healthy

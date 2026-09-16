@@ -8,3 +8,5 @@ README.md
 docker-compose*.yml
 certbot/
 nginx/
+.env
+.env.*

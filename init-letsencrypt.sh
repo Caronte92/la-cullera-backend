@@ -1,8 +1,15 @@
 #!/bin/bash
 
+# Load CERTBOT_DOMAIN / CERTBOT_EMAIL (and other prod vars) if present
+if [ -f ".env.pro" ]; then
+  set -a
+  source .env.pro
+  set +a
+fi
+
 # Configuration
-DOMAIN="api.lacullera.sergimitjavila.com"
-EMAIL="amoamoret@gmail.com"
+DOMAIN="${CERTBOT_DOMAIN:?Set CERTBOT_DOMAIN env var}"
+EMAIL="${CERTBOT_EMAIL:?Set CERTBOT_EMAIL env var}"
 STAGING=0  # Set to 1 to test with staging (avoids rate limits)
 
 DATA_PATH="./certbot"
